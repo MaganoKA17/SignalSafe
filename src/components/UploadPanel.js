@@ -6,7 +6,7 @@ function UploadPanel({onPostsLoaded}){
             backgroundColor: 'white',
             borderRadius: '12px',
             padding: '24px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0,1)'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
         }}>
             <h2 style={{color: '#1a1a2e', marginBottom: '8px'}}>
                 Upload Posts
