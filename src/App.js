@@ -1,12 +1,13 @@
-import logo from './logo.svg';
+import React from 'react';
+import Navbar from './components/NavBar';
 import './App.css';
 
-function App() {
+function App(){
   return (
-    <div className="App">
-      <h1>SignalSafe</h1>
+    <div className='app'>
+      <Navbar/>
     </div>
-  );
-}
+  )
 
+}
 export default App;
