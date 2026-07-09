@@ -8,11 +8,8 @@ function UploadPanel({ onPostsLoaded }) {
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    console.log("File selected:", file.name);
     setFileName(file.name);
     setLoading(true);
-
     try {
       const data = await parseCSV(file);
       onPostsLoaded(data);
@@ -25,27 +22,38 @@ function UploadPanel({ onPostsLoaded }) {
 
   return (
     <div style={{
-      backgroundColor: 'white',
+      backgroundColor: 'var(--bg-card)',
       borderRadius: '12px',
       padding: '24px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+      boxShadow: 'var(--shadow)',
+      border: '1px solid var(--border)'
     }}>
-      <h2 style={{ color: '#1a1a2e', marginBottom: '8px' }}>
-        Upload Posts
-      </h2>
-      <p style={{ color: '#555', fontSize: '0.9rem', marginBottom: '16px' }}>
-        Upload a CSV file of job posts or recruitment listings to analyze.
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+        <span>📂</span>
+        <h2 style={{ color: 'var(--text-primary)', fontSize: '1rem', fontWeight: '700' }}>
+          Upload Posts
+        </h2>
+      </div>
+      <p style={{
+        color: 'var(--text-secondary)',
+        fontSize: '0.82rem',
+        lineHeight: '1.6',
+        marginBottom: '20px'
+      }}>
+        Upload a CSV of job posts or recruitment listings to scan for exploitation signals.
       </p>
       <label style={{
-        backgroundColor: '#e94560',
+        display: 'inline-block',
+        backgroundColor: 'var(--accent)',
         color: 'white',
-        border: 'none',
-        padding: '10px 24px',
+        padding: '10px 22px',
         borderRadius: '8px',
         cursor: 'pointer',
-        fontSize: '0.9rem'
+        fontSize: '0.85rem',
+        fontWeight: '600',
+        letterSpacing: '0.02em'
       }}>
-        {loading ? 'Loading...' : 'Upload CSV'}
+        {loading ? '⏳ Processing...' : '+ Upload CSV'}
         <input
           type="file"
           accept=".csv"
@@ -54,10 +62,29 @@ function UploadPanel({ onPostsLoaded }) {
         />
       </label>
       {fileName && (
-        <p style={{ marginTop: '12px', color: '#555', fontSize: '0.85rem' }}>
-          Loaded: {fileName}
+        <p style={{
+          marginTop: '12px',
+          color: 'var(--text-secondary)',
+          fontSize: '0.78rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px'
+        }}>
+          <span style={{ color: 'var(--low)' }}>✓</span> {fileName}
         </p>
       )}
+      <div style={{
+        marginTop: '20px',
+        padding: '12px 16px',
+        backgroundColor: 'var(--bg-primary)',
+        borderRadius: '8px',
+        border: '1px solid var(--border)'
+      }}>
+        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+          <strong style={{ color: 'var(--text-primary)' }}>Required columns</strong><br />
+          title · description · contact
+        </p>
+      </div>
     </div>
   );
 }

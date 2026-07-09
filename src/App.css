@@ -1,0 +1,38 @@
+.app {
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.app[data-theme="dark"] {
+  --bg-primary: #0D1B2A;
+  --bg-surface: #1E2D3D;
+  --bg-card: #243447;
+  --accent: #C1121F;
+  --text-primary: #E0E0E0;
+  --text-secondary: #8A9BB0;
+  --border: #2E4057;
+  --low: #4CAF7D;
+  --low-bg: #1a3d2e;
+  --medium: #E9A825;
+  --medium-bg: #3d2e0a;
+  --high: #C1121F;
+  --high-bg: #3d0a0a;
+  --shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+}
+
+.app[data-theme="light"] {
+  --bg-primary: #F0F4F8;
+  --bg-surface: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --accent: #C1121F;
+  --text-primary: #0D1B2A;
+  --text-secondary: #4A5568;
+  --border: #E2E8F0;
+  --low: #276749;
+  --low-bg: #e6f4ee;
+  --medium: #B7791F;
+  --medium-bg: #fef3e2;
+  --high: #C1121F;
+  --high-bg: #fde8e8;
+  --shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+}

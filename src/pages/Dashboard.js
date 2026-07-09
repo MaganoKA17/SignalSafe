@@ -6,14 +6,11 @@ import OutreachPanel from '../components/OutreachPanel';
 import { analyzePost } from '../utils/groqApi';
 
 function Dashboard() {
-  const [posts, setPosts] = useState([]);
   const [analyzedPosts, setAnalyzedPosts] = useState([]);
   const [analyzing, setAnalyzing] = useState(false);
-  const handlePostsLoaded = async (data) => {
-    console.log("Posts loaded:", data);
-    setPosts(data);
-    setAnalyzing(true);
 
+  const handlePostsLoaded = async (data) => {
+    setAnalyzing(true);
     try {
       const results = await Promise.all(
         data.map(async (post) => {
@@ -30,64 +27,115 @@ function Dashboard() {
     }
   };
 
+  const highRiskCount = analyzedPosts.filter(p => p.analysis?.riskLevel === 'High').length;
+
+  const riskColor = (level) =>
+    level === 'High' ? 'var(--high)' :
+    level === 'Medium' ? 'var(--medium)' : 'var(--low)';
+
+  const riskBg = (level) =>
+    level === 'High' ? 'var(--high-bg)' :
+    level === 'Medium' ? 'var(--medium-bg)' : 'var(--low-bg)';
+
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: '1fr 2fr',
-      gridTemplateRows: 'auto auto',
-      gap: '24px',
-      padding: '24px',
-      backgroundColor: '#f5f5f5',
-      minHeight: '90vh'
-    }}>
-      <div>
-        <UploadPanel onPostsLoaded={handlePostsLoaded} />
-        {analyzing && (
-          <p style={{ marginTop: '16px', color: '#e94560', fontWeight: 'bold' }}>
-            🔍 Analyzing posts...
-          </p>
-        )}
-        {analyzedPosts.length > 0 && (
-          <div style={{ marginTop: '16px' }}>
-            {analyzedPosts.map((post, index) => (
-              <div key={index} style={{
-                backgroundColor: 'white',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '12px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                borderLeft: `4px solid ${
-                  post.analysis.riskLevel === 'High' ? '#e94560' :
-                  post.analysis.riskLevel === 'Medium' ? '#f5a623' : '#27ae60'
-                }`
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 64px)' }}>
+
+      {highRiskCount > 0 && (
+        <div style={{
+          backgroundColor: 'var(--accent)',
+          color: 'white',
+          padding: '12px 32px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          fontSize: '0.85rem',
+          fontWeight: '700',
+          letterSpacing: '0.04em',
+          animation: 'threatPulse 2s ease-in-out infinite'
+        }}>
+          🚨 HIGH RISK ACTIVITY DETECTED —{' '}
+          {highRiskCount} post{highRiskCount > 1 ? 's' : ''} flagged for immediate review
+        </div>
+      )}
+
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '360px 1fr',
+        gap: '24px',
+        padding: '24px',
+        alignItems: 'start'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <UploadPanel onPostsLoaded={handlePostsLoaded} />
+
+          {analyzing && (
+            <div style={{
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              color: 'var(--accent)',
+              fontWeight: '600',
+              fontSize: '0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              🔍 Scanning posts with AI...
+            </div>
+          )}
+
+          {analyzedPosts.map((post, index) => (
+            <div key={index} style={{
+              backgroundColor: 'var(--bg-card)',
+              borderRadius: '12px',
+              padding: '18px',
+              boxShadow: 'var(--shadow)',
+              border: '1px solid var(--border)',
+              borderLeft: `4px solid ${riskColor(post.analysis.riskLevel)}`,
+              animation: 'fadeIn 0.3s ease'
+            }}>
+              <h3 style={{
+                color: 'var(--text-primary)',
+                fontSize: '0.9rem',
+                fontWeight: '700',
+                marginBottom: '8px'
               }}>
-                <h3 style={{ color: '#1a1a2e', marginBottom: '4px' }}>{post.title}</h3>
-                <span style={{
-                  fontSize: '0.8rem',
-                  fontWeight: 'bold',
-                  color: post.analysis.riskLevel === 'High' ? '#e94560' :
-                         post.analysis.riskLevel === 'Medium' ? '#f5a623' : '#27ae60'
-                }}>
-                  {post.analysis.riskLevel} Risk
-                </span>
-                <ul style={{ marginTop: '8px', paddingLeft: '16px' }}>
-                  {post.analysis.reasons.map((reason, i) => (
-                    <li key={i} style={{ fontSize: '0.85rem', color: '#555' }}>{reason}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-      <div>
-        <MapView />
-      </div>
-      <div>
-        <OutreachPanel posts={analyzedPosts} />
-      </div>
-      <div>
-        <NetworkGraph posts={analyzedPosts} />
+                {post.title}
+              </h3>
+              <span style={{
+                fontSize: '0.7rem',
+                fontWeight: '700',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                color: riskColor(post.analysis.riskLevel),
+                backgroundColor: riskBg(post.analysis.riskLevel),
+                padding: '3px 10px',
+                borderRadius: '12px'
+              }}>
+                {post.analysis.riskLevel} Risk
+              </span>
+              <ul style={{ marginTop: '12px', paddingLeft: '16px' }}>
+                {post.analysis.reasons.map((reason, i) => (
+                  <li key={i} style={{
+                    fontSize: '0.78rem',
+                    color: 'var(--text-secondary)',
+                    marginBottom: '4px',
+                    lineHeight: '1.5'
+                  }}>
+                    {reason}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <MapView />
+          <NetworkGraph posts={analyzedPosts} />
+          <OutreachPanel posts={analyzedPosts} />
+        </div>
       </div>
     </div>
   );

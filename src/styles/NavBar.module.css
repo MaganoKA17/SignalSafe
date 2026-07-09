@@ -1,19 +1,69 @@
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #1a1a2e;
-    padding: 16px 32px;
-    color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 64px;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 160px;
+}
+
+.shield {
+  font-size: 1.3rem;
 }
 
 .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #e94560;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+}
+
+.center {
+  flex: 1;
+  text-align: center;
 }
 
 .tagline {
-    font-size: 0.9rem;
-    color: #a8a8b3;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  min-width: 160px;
+  justify-content: flex-end;
+}
+
+.themeToggle {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.themeToggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }

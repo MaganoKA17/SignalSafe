@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 
 function NetworkGraph({ posts }) {
@@ -11,38 +11,20 @@ function NetworkGraph({ posts }) {
 
     posts.forEach((post, index) => {
       if (!post.analysis) return;
-
       const { phone, location, recruiterName } = post.analysis.entities;
-
       const postId = `post-${index}`;
-      nodes.push({
-        id: postId,
-        label: post.title || `Post ${index + 1}`,
-        type: 'post',
-        risk: post.analysis.riskLevel
-      });
+      nodes.push({ id: postId, label: post.title || `Post ${index + 1}`, type: 'post', risk: post.analysis.riskLevel });
 
       if (phone) {
-        if (!seen[phone]) {
-          seen[phone] = `phone-${phone}`;
-          nodes.push({ id: seen[phone], label: phone, type: 'phone' });
-        }
+        if (!seen[phone]) { seen[phone] = `phone-${phone}`; nodes.push({ id: seen[phone], label: phone, type: 'phone' }); }
         links.push({ source: postId, target: seen[phone] });
       }
-
       if (location) {
-        if (!seen[location]) {
-          seen[location] = `loc-${location}`;
-          nodes.push({ id: seen[location], label: location, type: 'location' });
-        }
+        if (!seen[location]) { seen[location] = `loc-${location}`; nodes.push({ id: seen[location], label: location, type: 'location' }); }
         links.push({ source: postId, target: seen[location] });
       }
-
       if (recruiterName) {
-        if (!seen[recruiterName]) {
-          seen[recruiterName] = `rec-${recruiterName}`;
-          nodes.push({ id: seen[recruiterName], label: recruiterName, type: 'recruiter' });
-        }
+        if (!seen[recruiterName]) { seen[recruiterName] = `rec-${recruiterName}`; nodes.push({ id: seen[recruiterName], label: recruiterName, type: 'recruiter' }); }
         links.push({ source: postId, target: seen[recruiterName] });
       }
     });
@@ -52,13 +34,12 @@ function NetworkGraph({ posts }) {
 
   const getNodeColor = (node) => {
     if (node.type === 'post') {
-      return node.risk === 'High' ? '#e94560' :
-             node.risk === 'Medium' ? '#f5a623' : '#27ae60';
+      return node.risk === 'High' ? '#C1121F' : node.risk === 'Medium' ? '#E9A825' : '#4CAF7D';
     }
     if (node.type === 'phone') return '#9b59b6';
     if (node.type === 'recruiter') return '#3498db';
     if (node.type === 'location') return '#1abc9c';
-    return '#aaa';
+    return '#8A9BB0';
   };
 
   const graphData = buildGraphData();
@@ -66,66 +47,75 @@ function NetworkGraph({ posts }) {
 
   return (
     <div style={{
-      backgroundColor: 'white',
+      backgroundColor: 'var(--bg-card)',
       borderRadius: '12px',
       padding: '24px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+      boxShadow: 'var(--shadow)',
+      border: '1px solid var(--border)'
     }}>
-      <h2 style={{ color: '#1a1a2e', marginBottom: '8px' }}>
-        Recruitment Network
-      </h2>
-      <p style={{ color: '#555', fontSize: '0.9rem', marginBottom: '16px' }}>
-        Connections between suspicious recruiters across posts.
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+        <span>🕸️</span>
+        <h2 style={{ color: 'var(--text-primary)', fontSize: '1rem', fontWeight: '700' }}>
+          Recruitment Network
+        </h2>
+      </div>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginBottom: '16px', lineHeight: '1.6' }}>
+        Connections between suspicious recruiters across analyzed posts.
       </p>
 
       {!hasData ? (
         <div style={{
-          height: '300px',
+          height: '280px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#aaa',
-          fontSize: '0.9rem'
+          color: 'var(--text-secondary)',
+          fontSize: '0.85rem',
+          backgroundColor: 'var(--bg-primary)',
+          borderRadius: '8px',
+          border: '1px solid var(--border)'
         }}>
-          Upload and analyze posts to see the network graph.
+          Upload posts to visualize the recruiter network.
         </div>
       ) : (
         <>
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            marginBottom: '12px',
-            flexWrap: 'wrap'
-          }}>
-            <span style={{ fontSize: '0.8rem' }}>🔴 High Risk Post</span>
-            <span style={{ fontSize: '0.8rem' }}>🟠 Medium Risk Post</span>
-            <span style={{ fontSize: '0.8rem' }}>🟢 Low Risk Post</span>
-            <span style={{ fontSize: '0.8rem', color: '#9b59b6' }}>🟣 Phone Number</span>
-            <span style={{ fontSize: '0.8rem', color: '#3498db' }}>🔵 Recruiter</span>
-            <span style={{ fontSize: '0.8rem', color: '#1abc9c' }}>🟦 Location</span>
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
+            {[
+              { color: '#C1121F', label: 'High Risk Post' },
+              { color: '#E9A825', label: 'Medium Risk Post' },
+              { color: '#4CAF7D', label: 'Low Risk Post' },
+              { color: '#9b59b6', label: 'Phone Number' },
+              { color: '#3498db', label: 'Recruiter' },
+              { color: '#1abc9c', label: 'Location' },
+            ].map((item, i) => (
+              <span key={i} style={{ fontSize: '0.72rem', color: item.color, fontWeight: '600' }}>
+                ● {item.label}
+              </span>
+            ))}
           </div>
-          <ForceGraph2D
-            ref={graphRef}
-            graphData={graphData}
-            nodeLabel="label"
-            nodeColor={getNodeColor}
-            nodeRelSize={6}
-            linkColor={() => '#ddd'}
-            width={600}
-            height={350}
-            nodeCanvasObject={(node, ctx, globalScale) => {
-              const label = node.label;
-              const fontSize = 12 / globalScale;
-              ctx.font = `${fontSize}px Sans-Serif`;
-              ctx.fillStyle = getNodeColor(node);
-              ctx.beginPath();
-              ctx.arc(node.x, node.y, 6, 0, 2 * Math.PI);
-              ctx.fill();
-              ctx.fillStyle = '#333';
-              ctx.textAlign = 'center';
-              ctx.fillText(label, node.x, node.y + 12);
-            }}
-          />
+          <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+            <ForceGraph2D
+              ref={graphRef}
+              graphData={graphData}
+              nodeLabel="label"
+              nodeColor={getNodeColor}
+              nodeRelSize={6}
+              linkColor={() => '#2E4057'}
+              width={680}
+              height={320}
+              nodeCanvasObject={(node, ctx, globalScale) => {
+                const fontSize = 11 / globalScale;
+                ctx.font = `${fontSize}px Inter, sans-serif`;
+                ctx.fillStyle = getNodeColor(node);
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, 6, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillStyle = '#E0E0E0';
+                ctx.textAlign = 'center';
+                ctx.fillText(node.label, node.x, node.y + 14);
+              }}
+            />
+          </div>
         </>
       )}
     </div>

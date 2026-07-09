@@ -21,95 +21,103 @@ function OutreachPanel({ posts }) {
     fetchOutreach();
   }, [posts]);
 
+  const urgencyColor = outreach?.urgencyLevel === 'High' ? 'var(--high)' :
+                       outreach?.urgencyLevel === 'Medium' ? 'var(--medium)' : 'var(--low)';
+  const urgencyBg = outreach?.urgencyLevel === 'High' ? 'var(--high-bg)' :
+                    outreach?.urgencyLevel === 'Medium' ? 'var(--medium-bg)' : 'var(--low-bg)';
+  const urgencyIcon = outreach?.urgencyLevel === 'High' ? '🚨' :
+                      outreach?.urgencyLevel === 'Medium' ? '⚠️' : '✅';
+
   return (
     <div style={{
-      backgroundColor: 'white',
+      backgroundColor: 'var(--bg-card)',
       borderRadius: '12px',
       padding: '24px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+      boxShadow: 'var(--shadow)',
+      border: '1px solid var(--border)'
     }}>
-      <h2 style={{ color: '#1a1a2e', marginBottom: '8px' }}>
-        📋 Outreach Recommendations
-      </h2>
-      <p style={{ color: '#555', fontSize: '0.9rem', marginBottom: '16px' }}>
-        AI generated recommendations for NGO outreach workers.
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+        <span>📋</span>
+        <h2 style={{ color: 'var(--text-primary)', fontSize: '1rem', fontWeight: '700' }}>
+          Outreach Recommendations
+        </h2>
+      </div>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginBottom: '16px', lineHeight: '1.6' }}>
+        AI-generated guidance for NGO outreach workers based on analyzed posts.
       </p>
 
       {loading && (
-        <p style={{ color: '#e94560', fontSize: '0.9rem' }}>
+        <p style={{ color: 'var(--accent)', fontSize: '0.85rem', fontWeight: '500' }}>
           🤖 Generating outreach recommendations...
         </p>
       )}
 
       {!loading && !outreach && (
-        <p style={{ color: '#aaa', fontSize: '0.9rem' }}>
-          Upload and analyze posts to generate recommendations.
-        </p>
+        <div style={{
+          padding: '24px',
+          backgroundColor: 'var(--bg-primary)',
+          borderRadius: '8px',
+          border: '1px solid var(--border)',
+          color: 'var(--text-secondary)',
+          fontSize: '0.82rem',
+          textAlign: 'center'
+        }}>
+          Upload and analyze posts to generate NGO recommendations.
+        </div>
       )}
 
       {outreach && (
-        <div>
+        <div style={{ animation: 'fadeIn 0.4s ease' }}>
           <div style={{
-            backgroundColor: outreach.urgencyLevel === 'High' ? '#ffeef0' :
-                             outreach.urgencyLevel === 'Medium' ? '#fff8ee' : '#eefff4',
+            backgroundColor: urgencyBg,
             borderRadius: '8px',
-            padding: '12px 16px',
-            marginBottom: '16px'
+            padding: '14px 18px',
+            marginBottom: '20px',
+            border: `1px solid ${urgencyColor}`
           }}>
-            <span style={{
-              fontWeight: 'bold',
-              color: outreach.urgencyLevel === 'High' ? '#e94560' :
-                     outreach.urgencyLevel === 'Medium' ? '#f5a623' : '#27ae60'
-            }}>
-              {outreach.urgencyLevel === 'High' ? '🚨' :
-               outreach.urgencyLevel === 'Medium' ? '⚠️' : '✅'} {outreach.urgencyLevel} Urgency
+            <span style={{ fontWeight: '700', color: urgencyColor, fontSize: '0.85rem' }}>
+              {urgencyIcon} {outreach.urgencyLevel} Urgency
             </span>
-            <p style={{ margin: '8px 0 0', color: '#333', fontSize: '0.9rem' }}>
+            <p style={{ margin: '8px 0 0', color: 'var(--text-primary)', fontSize: '0.85rem', lineHeight: '1.6' }}>
               {outreach.summary}
             </p>
           </div>
 
-          <h3 style={{ color: '#1a1a2e', fontSize: '1rem', marginBottom: '8px' }}>
+          <h3 style={{ color: 'var(--text-primary)', fontSize: '0.85rem', fontWeight: '700', marginBottom: '10px' }}>
             ⚡ Immediate Actions
           </h3>
-          <ul style={{ paddingLeft: '16px', marginBottom: '16px' }}>
+          <ul style={{ paddingLeft: '16px', marginBottom: '20px' }}>
             {outreach.immediateActions.map((action, i) => (
-              <li key={i} style={{
-                fontSize: '0.85rem',
-                color: '#333',
-                marginBottom: '6px'
-              }}>
+              <li key={i} style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px', lineHeight: '1.5' }}>
                 {action}
               </li>
             ))}
           </ul>
 
-          <h3 style={{ color: '#1a1a2e', fontSize: '1rem', marginBottom: '8px' }}>
+          <h3 style={{ color: 'var(--text-primary)', fontSize: '0.85rem', fontWeight: '700', marginBottom: '10px' }}>
             📌 Recommendations
           </h3>
-          <ul style={{ paddingLeft: '16px', marginBottom: '16px' }}>
+          <ul style={{ paddingLeft: '16px', marginBottom: '20px' }}>
             {outreach.recommendations.map((rec, i) => (
-              <li key={i} style={{
-                fontSize: '0.85rem',
-                color: '#333',
-                marginBottom: '6px'
-              }}>
+              <li key={i} style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px', lineHeight: '1.5' }}>
                 {rec}
               </li>
             ))}
           </ul>
 
-          <h3 style={{ color: '#1a1a2e', fontSize: '1rem', marginBottom: '8px' }}>
+          <h3 style={{ color: 'var(--text-primary)', fontSize: '0.85rem', fontWeight: '700', marginBottom: '10px' }}>
             👥 Priority Target Groups
           </h3>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {outreach.targetGroups.map((group, i) => (
               <span key={i} style={{
-                backgroundColor: '#f0f0f0',
-                color: '#555',
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--text-secondary)',
                 padding: '4px 12px',
                 borderRadius: '20px',
-                fontSize: '0.8rem'
+                fontSize: '0.75rem',
+                fontWeight: '500',
+                border: '1px solid var(--border)'
               }}>
                 {group}
               </span>
