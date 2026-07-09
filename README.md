@@ -1,70 +1,183 @@
-# Getting Started with Create React App
+# 🛡️ SignalSafe
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> Detecting exploitation and trafficking risks in job posts and recruitment networks — before harm occurs.
 
-## Available Scripts
+Built for the **Call for Code AI: United Against Trafficking** hackathon, organized by Austin AI Hub in partnership with Call for Code & UN Human Rights.
 
-In the project directory, you can run:
+**Track:** Anticipate & Disrupt
+**Challenges addressed:** #1 Major Event Risk & Outreach Planner · #3 Suspicious Recruitment Network Mapper
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## The Problem
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Traffickers and exploitative recruiters hide in plain sight on job boards, WhatsApp, Facebook, and event pages. Vulnerable people — migrants, job seekers, and event workers — cannot always spot the warning signs. No one is systematically reading these posts at scale to catch them before harm occurs.
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## What SignalSafe Does
 
-### `npm run build`
+SignalSafe is a web app that gives NGOs, labor advocates, and social workers three powerful tools in one dashboard:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 1. 📂 AI Post Analyzer
+Upload a CSV of job posts or recruitment listings. SignalSafe uses Groq AI (Llama 3) to scan each post for exploitation red flags:
+- Vague or missing employer identity
+- Unrealistic pay promises
+- Upfront fees required
+- Housing tied to the job
+- Pressure to travel or relocate
+- Document or passport control
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Each post receives a **Low / Medium / High** risk score with a plain-language explanation of exactly which signals triggered the flag.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 2. 🗺️ Real-Time Risk Zone Map
+Enter any city or event location. SignalSafe fetches real venue data from OpenStreetMap and plots risk zones based on:
+- 🔴 **High Risk** — Nightclubs, bars
+- 🟠 **Medium Risk** — Hotels, hostels, transit hubs, train stations
+- 🟢 **Low Risk** — Guest houses
 
-### `npm run eject`
+Every city shows different results because the data is pulled live — nothing is hardcoded.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 3. 🕸️ Recruitment Network Graph
+SignalSafe connects the dots across uploaded posts — shared phone numbers, recruiter names, and locations — and visualizes them as an interactive network graph. Patterns that are invisible when reading posts one by one become obvious when mapped as a network.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 4. 📋 AI Outreach Recommendations
+Based on the analyzed posts, SignalSafe generates actionable NGO outreach guidance including urgency level, immediate actions, specific recommendations, and priority target groups.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+---
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Who It's For
 
-## Learn More
+| User | How They Use It |
+|---|---|
+| NGOs & shelters | Screen posts flagged by clients before they respond |
+| Labor rights organizations | Monitor job boards in their region |
+| Migrant support groups | Protect vulnerable people seeking work |
+| Social workers | Quickly assess risk across multiple listings |
+| Researchers & investigators | Identify patterns and networks across many posts |
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Tech Stack
 
-### Code Splitting
+| Technology | Purpose |
+|---|---|
+| React | Frontend UI |
+| CSS Modules | Component scoped styling |
+| Groq API (Llama 3.3 70b) | AI risk scoring and outreach generation |
+| Leaflet.js + React Leaflet | Interactive risk zone map |
+| OpenStreetMap Nominatim | City geocoding — no API key required |
+| OpenStreetMap Overpass API | Real venue data — no API key required |
+| React Force Graph 2D | Recruiter network visualization |
+| PapaParse | CSV file parsing |
+| Vercel | Deployment |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+## Getting Started
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Prerequisites
+- Node.js v18 or higher
+- A Groq API key — get one free at [console.groq.com](https://console.groq.com)
 
-### Making a Progressive Web App
+### Installation
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```bash
+# Clone the repository
+git clone https://github.com/YOURUSERNAME/signalsafe.git
+cd signalsafe
 
-### Advanced Configuration
+# Install dependencies
+npm install
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+# Create your environment file
+touch .env
+```
 
-### Deployment
+Add your Groq API key to `.env`:
+```
+REACT_APP_GROQ_API_KEY=your_groq_api_key_here
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+```bash
+# Start the development server
+npm start
+```
 
-### `npm run build` fails to minify
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+
+## How To Use
+
+### Analyzing Posts
+1. Prepare a CSV file with columns: `title`, `description`, `contact`
+2. Click **Get Started** on the home page
+3. Click **Upload CSV** and select your file
+4. Wait for AI analysis — each post will show a risk score and explanation
+
+### Sample CSV Format
+```csv
+title,description,contact
+Job Opportunity,Earn R50000 per month no experience needed. Must surrender passport on arrival.,+27123456789
+Event Staff Needed,Flexible hours great pay. Upfront fee of R500 required. Recruiter: Mike.,+27987654321
+Marketing Role,Join our team in Cape Town. Competitive salary. Send CV to hr@company.co.za,+27111222333
+```
+
+### Mapping Risk Zones
+1. In the Risk Zone Map panel type any city name
+2. Press **Search** or hit Enter
+3. Real venue locations load from OpenStreetMap and are color coded by risk level
+4. Click any marker to see the venue name and risk level
+
+---
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── Navbar.js          # Top navigation bar
+│   ├── MapView.js         # Leaflet risk zone map
+│   ├── UploadPanel.js     # CSV upload and results display
+│   ├── NetworkGraph.js    # Recruiter connection graph
+│   └── OutreachPanel.js   # AI outreach recommendations
+├── pages/
+│   ├── Home.js            # Landing page
+│   └── Dashboard.js       # Main analysis dashboard
+├── utils/
+│   ├── groqApi.js         # Groq AI integration
+│   └── parseCSV.js        # CSV parsing utility
+└── styles/
+    ├── Navbar.module.css
+    ├── MapView.module.css
+    └── Dashboard.module.css
+```
+
+---
+
+## Hackathon Context
+
+**Event:** Call for Code AI: United Against Trafficking
+**Organizer:** Austin AI Hub
+**Partners:** Call for Code & UN Human Rights
+**Track:** Anticipate & Disrupt
+**Submission deadline:** July 14, 2026
+
+---
+
+## Future Improvements
+
+- Multilingual post analysis supporting all 11 official South African languages
+- Historical trafficking hotspot data integration
+- Export reports as PDF for NGO field workers
+- Real time monitoring of live job boards
+- Mobile responsive design for field use
+
+---
+
+## License
+
+MIT License — open source for NGOs and researchers to use freely.
+
+---
