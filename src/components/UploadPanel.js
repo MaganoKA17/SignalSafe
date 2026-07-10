@@ -1,23 +1,43 @@
-import React, { useState } from 'react';
-import { parseCSV } from '../utils/parseCSV';
+import React, { useState, useRef } from 'react';
 
-function UploadPanel({ onPostsLoaded }) {
-  const [fileName, setFileName] = useState('');
+function UploadPanel({ onImagesLoaded }) {
+  const [previews, setPreviews] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const inputRef = useRef();
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setFileName(file.name);
+  const handleFiles = async (files) => {
+    const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (imageFiles.length === 0) return;
+
     setLoading(true);
-    try {
-      const data = await parseCSV(file);
-      onPostsLoaded(data);
-    } catch (error) {
-      console.error('Error parsing CSV:', error);
-    } finally {
-      setLoading(false);
-    }
+    const newPreviews = imageFiles.map(file => ({
+      name: file.name,
+      url: URL.createObjectURL(file),
+      file
+    }));
+    setPreviews(prev => [...prev, ...newPreviews]);
+    onImagesLoaded(imageFiles);
+    setLoading(false);
+  };
+
+  const handleInputChange = (e) => handleFiles(e.target.files);
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    handleFiles(e.dataTransfer.files);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = () => setDragOver(false);
+
+  const removePreview = (index) => {
+    setPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -29,62 +49,104 @@ function UploadPanel({ onPostsLoaded }) {
       border: '1px solid var(--border)'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-        <span>📂</span>
+        <span>📸</span>
         <h2 style={{ color: 'var(--text-primary)', fontSize: '1rem', fontWeight: '700' }}>
-          Upload Posts
+          Upload Screenshots
         </h2>
       </div>
       <p style={{
         color: 'var(--text-secondary)',
         fontSize: '0.82rem',
         lineHeight: '1.6',
-        marginBottom: '20px'
+        marginBottom: '16px'
       }}>
-        Upload a CSV of job posts or recruitment listings to scan for exploitation signals.
+        Upload screenshots of suspicious job posts, WhatsApp messages, or event offers.
       </p>
-      <label style={{
-        display: 'inline-block',
-        backgroundColor: 'var(--accent)',
-        color: 'white',
-        padding: '10px 22px',
-        borderRadius: '8px',
-        cursor: 'pointer',
-        fontSize: '0.85rem',
-        fontWeight: '600',
-        letterSpacing: '0.02em'
-      }}>
-        {loading ? '⏳ Processing...' : '+ Upload CSV'}
+
+      <div
+        onClick={() => inputRef.current.click()}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        style={{
+          border: `2px dashed ${dragOver ? 'var(--accent)' : 'var(--border)'}`,
+          borderRadius: '10px',
+          padding: '28px 16px',
+          textAlign: 'center',
+          cursor: 'pointer',
+          backgroundColor: dragOver ? 'var(--high-bg)' : 'var(--bg-primary)',
+          transition: 'all 0.2s ease',
+          marginBottom: '16px'
+        }}
+      >
+        <div style={{ fontSize: '1.8rem', marginBottom: '8px' }}>📁</div>
+        <p style={{ color: 'var(--text-primary)', fontSize: '0.85rem', fontWeight: '600', marginBottom: '4px' }}>
+          {loading ? 'Processing...' : 'Drop images here or click to browse'}
+        </p>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>
+          JPG, PNG, WEBP — multiple files supported
+        </p>
         <input
+          ref={inputRef}
           type="file"
-          accept=".csv"
-          onChange={handleFileUpload}
+          accept="image/*"
+          multiple
+          onChange={handleInputChange}
           style={{ display: 'none' }}
         />
-      </label>
-      {fileName && (
-        <p style={{
-          marginTop: '12px',
-          color: 'var(--text-secondary)',
-          fontSize: '0.78rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px'
-        }}>
-          <span style={{ color: 'var(--low)' }}>✓</span> {fileName}
-        </p>
-      )}
-      <div style={{
-        marginTop: '20px',
-        padding: '12px 16px',
-        backgroundColor: 'var(--bg-primary)',
-        borderRadius: '8px',
-        border: '1px solid var(--border)'
-      }}>
-        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-          <strong style={{ color: 'var(--text-primary)' }}>Required columns</strong><br />
-          title · description · contact
-        </p>
       </div>
+
+      {previews.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {previews.map((preview, index) => (
+            <div key={index} style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              backgroundColor: 'var(--bg-primary)',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              border: '1px solid var(--border)'
+            }}>
+              <img
+                src={preview.url}
+                alt={preview.name}
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  objectFit: 'cover',
+                  borderRadius: '6px',
+                  flexShrink: 0
+                }}
+              />
+              <span style={{
+                fontSize: '0.78rem',
+                color: 'var(--text-secondary)',
+                flex: 1,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
+                {preview.name}
+              </span>
+              <button
+                onClick={() => removePreview(index)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  padding: '0 4px',
+                  flexShrink: 0
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

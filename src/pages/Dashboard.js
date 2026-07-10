@@ -3,28 +3,34 @@ import UploadPanel from '../components/UploadPanel';
 import MapView from '../components/MapView';
 import NetworkGraph from '../components/NetworkGraph';
 import OutreachPanel from '../components/OutreachPanel';
-import { analyzePost } from '../utils/groqApi';
+import { analyzeImage } from '../utils/groqApi';
 
 function Dashboard() {
   const [analyzedPosts, setAnalyzedPosts] = useState([]);
   const [analyzing, setAnalyzing] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
 
-  const handlePostsLoaded = async (data) => {
+  const handleImagesLoaded = async (imageFiles) => {
     setAnalyzing(true);
-    try {
-      const results = await Promise.all(
-        data.map(async (post) => {
-          const postText = `${post.title} ${post.description}`;
-          const analysis = await analyzePost(postText);
-          return { ...post, analysis };
-        })
-      );
-      setAnalyzedPosts(results);
-    } catch (error) {
-      console.error('Error analyzing posts:', error);
-    } finally {
-      setAnalyzing(false);
+    setProgress({ current: 0, total: imageFiles.length });
+
+    const results = [];
+    for (let i = 0; i < imageFiles.length; i++) {
+      try {
+        const analysis = await analyzeImage(imageFiles[i]);
+        results.push({
+          fileName: imageFiles[i].name,
+          previewUrl: URL.createObjectURL(imageFiles[i]),
+          analysis
+        });
+        setProgress({ current: i + 1, total: imageFiles.length });
+      } catch (error) {
+        console.error(`Error analyzing ${imageFiles[i].name}:`, error);
+      }
     }
+
+    setAnalyzedPosts(prev => [...prev, ...results]);
+    setAnalyzing(false);
   };
 
   const highRiskCount = analyzedPosts.filter(p => p.analysis?.riskLevel === 'High').length;
@@ -66,7 +72,7 @@ function Dashboard() {
         alignItems: 'start'
       }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <UploadPanel onPostsLoaded={handlePostsLoaded} />
+          <UploadPanel onImagesLoaded={handleImagesLoaded} />
 
           {analyzing && (
             <div style={{
@@ -74,14 +80,24 @@ function Dashboard() {
               border: '1px solid var(--border)',
               borderRadius: '12px',
               padding: '16px 20px',
-              color: 'var(--accent)',
-              fontWeight: '600',
-              fontSize: '0.85rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
             }}>
-              🔍 Scanning posts with AI...
+              <p style={{ color: 'var(--accent)', fontWeight: '600', fontSize: '0.85rem', marginBottom: '10px' }}>
+                🔍 Analyzing image {progress.current + 1} of {progress.total}...
+              </p>
+              <div style={{
+                height: '4px',
+                backgroundColor: 'var(--border)',
+                borderRadius: '4px',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  height: '100%',
+                  width: `${(progress.current / progress.total) * 100}%`,
+                  backgroundColor: 'var(--accent)',
+                  borderRadius: '4px',
+                  transition: 'width 0.3s ease'
+                }} />
+              </div>
             </div>
           )}
 
@@ -95,27 +111,43 @@ function Dashboard() {
               borderLeft: `4px solid ${riskColor(post.analysis.riskLevel)}`,
               animation: 'fadeIn 0.3s ease'
             }}>
-              <h3 style={{
-                color: 'var(--text-primary)',
-                fontSize: '0.9rem',
-                fontWeight: '700',
-                marginBottom: '8px'
-              }}>
-                {post.title}
-              </h3>
-              <span style={{
-                fontSize: '0.7rem',
-                fontWeight: '700',
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                color: riskColor(post.analysis.riskLevel),
-                backgroundColor: riskBg(post.analysis.riskLevel),
-                padding: '3px 10px',
-                borderRadius: '12px'
-              }}>
-                {post.analysis.riskLevel} Risk
-              </span>
-              <ul style={{ marginTop: '12px', paddingLeft: '16px' }}>
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                <img
+                  src={post.previewUrl}
+                  alt={post.fileName}
+                  style={{
+                    width: '56px',
+                    height: '56px',
+                    objectFit: 'cover',
+                    borderRadius: '6px',
+                    flexShrink: 0
+                  }}
+                />
+                <div>
+                  <h3 style={{
+                    color: 'var(--text-primary)',
+                    fontSize: '0.88rem',
+                    fontWeight: '700',
+                    marginBottom: '6px',
+                    lineHeight: '1.3'
+                  }}>
+                    {post.analysis.title || post.fileName}
+                  </h3>
+                  <span style={{
+                    fontSize: '0.7rem',
+                    fontWeight: '700',
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                    color: riskColor(post.analysis.riskLevel),
+                    backgroundColor: riskBg(post.analysis.riskLevel),
+                    padding: '3px 10px',
+                    borderRadius: '12px'
+                  }}>
+                    {post.analysis.riskLevel} Risk
+                  </span>
+                </div>
+              </div>
+              <ul style={{ paddingLeft: '16px' }}>
                 {post.analysis.reasons.map((reason, i) => (
                   <li key={i} style={{
                     fontSize: '0.78rem',
