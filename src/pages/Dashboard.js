@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import UploadPanel from '../components/UploadPanel';
 import MapView from '../components/MapView';
 import NetworkGraph from '../components/NetworkGraph';
@@ -9,6 +9,30 @@ function Dashboard() {
   const [analyzedPosts, setAnalyzedPosts] = useState([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const [userLocation, setUserLocation] = useState(null);
+
+  useEffect(() => {
+    const detectLocation = async () => {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+          );
+          const data = await response.json();
+          const city = data.address?.city || data.address?.town || data.address?.village || '';
+          const country = data.address?.country || '';
+          setUserLocation(`${city}${city && country ? ', ' : ''}${country}`);
+        } catch (error) {
+          console.error('Error getting location:', error);
+        }
+      }, () => {
+        setUserLocation(null);
+      });
+    };
+    detectLocation();
+  }, []);
 
   const handleImagesLoaded = async (imageFiles) => {
     setAnalyzing(true);
@@ -45,6 +69,21 @@ function Dashboard() {
 
   return (
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 64px)' }}>
+
+      {userLocation && (
+        <div style={{
+          backgroundColor: 'var(--bg-surface)',
+          borderBottom: '1px solid var(--border)',
+          padding: '8px 32px',
+          fontSize: '0.75rem',
+          color: 'var(--text-secondary)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px'
+        }}>
+          📍 Generating recommendations for: <strong style={{ color: 'var(--text-primary)' }}>{userLocation}</strong>
+        </div>
+      )}
 
       {highRiskCount > 0 && (
         <div style={{
@@ -166,7 +205,7 @@ function Dashboard() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <MapView />
           <NetworkGraph posts={analyzedPosts} />
-          <OutreachPanel posts={analyzedPosts} />
+          <OutreachPanel posts={analyzedPosts} userLocation={userLocation} />
         </div>
       </div>
     </div>

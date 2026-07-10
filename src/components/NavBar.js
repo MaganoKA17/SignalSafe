@@ -5,7 +5,6 @@ function Navbar({ theme, toggleTheme }) {
   return (
     <nav className={styles.navbar}>
       <div className={styles.left}>
-        <span className={styles.shield}>🛡️</span>
         <span className={styles.logo}>SignalSafe</span>
       </div>
       <div className={styles.center}>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { generateOutreach } from '../utils/groqApi';
 
-function OutreachPanel({ posts }) {
+function OutreachPanel({ posts, userLocation }) {
   const [outreach, setOutreach] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -10,7 +10,7 @@ function OutreachPanel({ posts }) {
     const fetchOutreach = async () => {
       setLoading(true);
       try {
-        const result = await generateOutreach(posts);
+        const result = await generateOutreach(posts, userLocation);
         setOutreach(result);
       } catch (error) {
         console.error('Error generating outreach:', error);
@@ -19,7 +19,7 @@ function OutreachPanel({ posts }) {
       }
     };
     fetchOutreach();
-  }, [posts]);
+  }, [posts, userLocation]);
 
   const urgencyColor = outreach?.urgencyLevel === 'High' ? 'var(--high)' :
                        outreach?.urgencyLevel === 'Medium' ? 'var(--medium)' : 'var(--low)';
@@ -43,12 +43,12 @@ function OutreachPanel({ posts }) {
         </h2>
       </div>
       <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginBottom: '16px', lineHeight: '1.6' }}>
-        AI-generated guidance for NGO outreach workers based on analyzed posts.
+        AI-generated guidance tailored to your location and the posts analyzed.
       </p>
 
       {loading && (
         <p style={{ color: 'var(--accent)', fontSize: '0.85rem', fontWeight: '500' }}>
-          🤖 Generating outreach recommendations...
+          🤖 Generating location-aware recommendations...
         </p>
       )}
 
@@ -62,12 +62,31 @@ function OutreachPanel({ posts }) {
           fontSize: '0.82rem',
           textAlign: 'center'
         }}>
-          Upload and analyze posts to generate NGO recommendations.
+          Upload and analyze posts to generate recommendations.
         </div>
       )}
 
       {outreach && (
         <div style={{ animation: 'fadeIn 0.4s ease' }}>
+
+          {outreach.locationNote && (
+            <div style={{
+              backgroundColor: 'var(--bg-primary)',
+              borderRadius: '8px',
+              padding: '12px 16px',
+              marginBottom: '16px',
+              border: '1px solid var(--border)',
+              fontSize: '0.8rem',
+              color: 'var(--text-secondary)',
+              display: 'flex',
+              gap: '8px',
+              alignItems: 'flex-start'
+            }}>
+              <span>🌍</span>
+              <span>{outreach.locationNote}</span>
+            </div>
+          )}
+
           <div style={{
             backgroundColor: urgencyBg,
             borderRadius: '8px',
